@@ -1,0 +1,128 @@
+<title>Códigos de Jornada EBSERH</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --ground:#eef3f3; --surface:#ffffff; --ink:#132d33; --muted:#566d72; --line:#d3dfe0;
+  --accent:#0d6b70; --accent-ink:#ffffff; --soft:#dcecec; --warn:#8a5a00; --warn-bg:#fbf1dc;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  color-scheme:dark;--ground:#0f1a1c;--surface:#162528;--ink:#e3eeee;--muted:#93aaad;--line:#2a3e41;
+  --accent:#4fb8bd;--accent-ink:#0b1719;--soft:#1d3337;--warn:#f0c46b;--warn-bg:#3a2e14;}}
+:root[data-theme="dark"]{color-scheme:dark;--ground:#0f1a1c;--surface:#162528;--ink:#e3eeee;--muted:#93aaad;--line:#2a3e41;
+  --accent:#4fb8bd;--accent-ink:#0b1719;--soft:#1d3337;--warn:#f0c46b;--warn-bg:#3a2e14;}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;padding-inline:16px;padding-block:28px 48px}
+.wrap{max-width:860px;margin:0 auto;display:grid;gap:22px}
+header{display:grid;gap:4px}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h1{font-size:clamp(24px,4vw,32px);line-height:1.15;margin:0;text-wrap:balance}
+header p{margin:0;color:var(--muted);max-width:62ch}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;display:grid;gap:18px}
+.fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:620px){.fields{grid-template-columns:1fr}}
+label{display:grid;gap:6px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+select,input{font:500 17px var(--sans);color:var(--ink);background:var(--ground);border:1px solid var(--line);border-radius:8px;padding:11px 12px;width:100%}
+select{font-family:var(--mono)}
+select:focus-visible,input:focus-visible,button:focus-visible,tr:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.result{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:480px){.result{grid-template-columns:1fr}}
+.out{background:var(--accent);color:var(--accent-ink);border-radius:10px;padding:16px 18px;display:grid;gap:2px;position:relative}
+.out span{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;opacity:.85}
+.out strong{font:600 clamp(36px,7vw,48px)/1.1 var(--mono);letter-spacing:-.01em}
+.copy{position:absolute;top:12px;right:12px;font:600 12px var(--sans);background:transparent;color:inherit;border:1px solid currentColor;border-radius:6px;padding:4px 9px;cursor:pointer;opacity:.9}
+.copy:hover{opacity:1}
+.meta{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:13px;background:var(--soft);border-radius:999px;padding:4px 11px}
+.chip.warn{background:var(--warn-bg);color:var(--warn);font-weight:500}
+h2{font-size:17px;margin:0}
+.tablehead{display:flex;flex-wrap:wrap;gap:12px;align-items:end;justify-content:space-between}
+.tablehead input{max-width:280px;font-size:15px}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:14px;white-space:nowrap}
+td.t{font-family:var(--sans);color:var(--muted);font-size:13px;white-space:normal}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--soft)}
+tbody tr.sel{background:var(--soft);box-shadow:inset 3px 0 0 var(--accent)}
+.empty{color:var(--muted);padding:14px 10px}
+footer{font-size:12.5px;color:var(--muted)}
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">POP.DGP.042 · Anexo II</span>
+    <h1>Tabela de Códigos de Horários</h1>
+    <p>Escolha a jornada, o início e o fim. O código e a sigla aparecem na hora. Só estão listados os horários previstos no Anexo II (item 11.1 veda jornadas não previstas).</p>
+  </header>
+
+  <section class="panel" aria-label="Busca por jornada">
+    <div class="fields">
+      <label for="jor">Jornada<select id="jor"></select></label>
+      <label for="ini">Início da jornada<select id="ini"></select></label>
+      <label for="fim">Fim da jornada<select id="fim"></select></label>
+    </div>
+    <div class="result" aria-live="polite">
+      <div class="out"><span>Código</span><strong id="rCod">—</strong><button class="copy" data-t="rCod" type="button">Copiar</button></div>
+      <div class="out"><span>Sigla</span><strong id="rSig">—</strong><button class="copy" data-t="rSig" type="button">Copiar</button></div>
+    </div>
+    <div class="meta" id="meta"></div>
+  </section>
+
+  <section class="panel" aria-label="Tabela completa">
+    <div class="tablehead">
+      <h2 id="tTitle">Todos os horários</h2>
+      <label for="q" style="flex:1 1 220px;max-width:280px">Buscar código ou sigla<input id="q" type="search" placeholder="ex.: 586 ou D6" autocomplete="off"></label>
+    </div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Jornada</th><th>Início</th><th>Fim</th><th>Código</th><th>Sigla</th><th>Observação</th></tr></thead>
+        <tbody id="tb"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>Fonte: EBSERH, POP.DGP.042 – Gestão da Frequência, Jornadas de Trabalho e Banco de Horas, Anexo II (SEI 23477.024348/2024-77). Clique numa linha da tabela para preencher a busca.</footer>
+</div>
+
+<script>
+const R=[[4, "", 0, "06:00", "10:00", "644", "M19"], [4, "", 0, "06:30", "10:30", "645", "M20"], [4, "", 0, "07:00", "11:00", "902", "M8"], [4, "", 0, "07:30", "11:30", "646", "M21"], [4, "", 0, "08:00", "12:00", "904", "M10"], [4, "", 0, "08:30", "12:30", "647", "M22"], [4, "", 0, "09:00", "13:00", "905", "M11"], [4, "", 0, "09:30", "13:30", "648", "M23"], [4, "", 0, "10:00", "14:00", "906", "M12"], [4, "", 0, "10:30", "14:30", "649", "M24"], [4, "", 0, "11:00", "15:00", "650", "M25"], [4, "", 0, "11:30", "15:30", "651", "M26"], [4, "", 0, "12:00", "16:00", "901", "T9"], [4, "", 0, "12:30", "16:30", "652", "T20"], [4, "", 0, "13:00", "17:00", "907", "T10"], [4, "", 0, "13:30", "17:30", "653", "T21"], [4, "", 0, "14:00", "18:00", "908", "T11"], [4, "", 0, "14:30", "18:30", "654", "T22"], [4, "", 0, "15:00", "19:00", "909", "T12"], [4, "", 0, "15:30", "19:30", "655", "T23"], [4, "", 0, "16:00", "20:00", "656", "T24"], [4, "", 1, "16:30", "20:30", "677", "T25"], [4, "", 1, "17:00", "21:00", "678", "T26"], [4, "", 1, "17:30", "21:30", "679", "T27"], [4, "", 1, "18:00", "22:00", "900", "N11"], [5, "", 0, "06:00", "11:15", "705", "JOR12"], [5, "", 0, "06:30", "11:45", "709", "JOR14"], [5, "", 0, "07:00", "12:15", "508", "JOR1"], [5, "", 0, "07:30", "12:45", "711", "JOR15"], [5, "", 0, "08:00", "13:15", "509", "JOR2"], [5, "", 0, "08:30", "13:45", "706", "JOR16"], [5, "", 0, "09:00", "14:15", "641", "JOR6"], [5, "", 0, "09:30", "14:45", "672", "JOR17"], [5, "", 0, "10:00", "15:15", "642", "JOR7"], [5, "", 0, "10:30", "15:45", "673", "JOR18"], [5, "", 0, "11:00", "16:15", "643", "JOR8"], [5, "", 0, "11:30", "16:45", "674", "JOR19"], [5, "", 0, "12:00", "17:15", "510", "JOR3"], [5, "", 0, "12:30", "17:45", "675", "JOR20"], [5, "", 0, "13:00", "18:15", "511", "JOR4"], [5, "", 0, "13:30", "18:45", "676", "JOR21"], [5, "", 0, "14:00", "19:15", "512", "JOR5"], [5, "", 0, "14:30", "19:45", "693", "JOR22"], [6, "", 0, "06:00", "12:15", "514", "M13"], [6, "", 0, "06:30", "12:45", "516", "M14"], [6, "", 0, "07:00", "13:15", "518", "M15"], [6, "", 0, "07:30", "13:45", "520", "M16"], [6, "", 0, "08:00", "14:15", "522", "M17"], [6, "", 0, "08:30", "14:45", "657", "M27"], [6, "", 0, "09:00", "15:15", "658", "M28"], [6, "", 0, "09:30", "15:45", "659", "M29"], [6, "", 0, "10:00", "16:15", "524", "M18"], [6, "", 0, "10:30", "16:45", "660", "M30"], [6, "", 0, "11:00", "17:15", "661", "M31"], [6, "", 0, "11:30", "17:45", "662", "M32"], [6, "", 0, "12:00", "18:15", "527", "T13"], [6, "", 0, "12:30", "18:45", "529", "T14"], [6, "", 0, "13:00", "19:15", "531", "T15"], [6, "", 0, "13:30", "19:45", "533", "T16"], [6, "", 1, "14:00", "20:15", "535", "T17"], [6, "", 1, "14:30", "20:45", "663", "T28"], [6, "", 1, "15:00", "21:15", "537", "T18"], [6, "", 1, "15:30", "21:45", "539", "T19"], [7, "30 minutos", 0, "06:00", "13:30", "682", "JOR23"], [7, "30 minutos", 0, "06:30", "14:00", "683", "JOR25"], [7, "30 minutos", 0, "07:00", "14:30", "632", "JOR9"], [7, "30 minutos", 0, "07:30", "15:00", "633", "JOR10"], [7, "30 minutos", 0, "08:00", "15:30", "634", "JOR11"], [7, "30 minutos", 0, "08:30", "16:00", "635", "JOR12"], [7, "30 minutos", 0, "09:00", "16:30", "684", "JOR26"], [7, "30 minutos", 0, "09:30", "17:00", "685", "JOR27"], [7, "30 minutos", 0, "10:00", "17:30", "686", "JOR28"], [7, "30 minutos", 0, "10:30", "18:00", "687", "JOR29"], [7, "30 minutos", 0, "11:00", "18:30", "637", "JOR17"], [7, "30 minutos", 0, "11:30", "19:00", "688", "JOR30"], [7, "30 minutos", 0, "12:00", "19:30", "689", "JOR31"], [7, "30 minutos", 0, "12:30", "20:00", "690", "JOR32"], [7, "1 hora", 0, "06:00", "14:00", "691", "JOR33"], [7, "1 hora", 0, "06:30", "14:30", "692", "JOR34"], [7, "1 hora", 0, "07:00", "15:00", "716", "JOR21"], [7, "1 hora", 0, "08:00", "16:00", "694", "JOR35"], [7, "1 hora", 0, "09:00", "17:00", "695", "JOR36"], [7, "1 hora", 0, "10:00", "18:00", "636", "JOR24"], [7, "1 hora", 0, "11:00", "19:00", "696", "JOR37"], [7, "1 hora", 0, "12:00", "20:00", "697", "JOR38"], [7, "2 horas", 0, "06:00", "15:00", "737", "JOR40"], [7, "2 horas", 0, "06:30", "15:30", "738", "JOR41"], [7, "2 horas", 0, "07:00", "16:00", "739", "JOR42"], [7, "2 horas", 0, "08:00", "17:00", "740", "JOR43"], [7, "2 horas", 0, "09:00", "18:00", "741", "JOR44"], [7, "2 horas", 0, "10:00", "19:00", "742", "JOR45"], [7, "2 horas", 0, "11:00", "20:00", "743", "JOR46"], [8, "30 minutos", 0, "06:00", "14:30", "638", "MT13"], [8, "30 minutos", 0, "06:30", "15:00", "639", "MT14"], [8, "30 minutos", 0, "07:00", "15:30", "541", "MT15"], [8, "30 minutos", 0, "07:30", "16:00", "542", "MT16"], [8, "30 minutos", 0, "08:00", "16:30", "543", "MT17"], [8, "30 minutos", 0, "08:30", "17:00", "544", "MT18"], [8, "30 minutos", 0, "09:00", "17:30", "545", "MT19"], [8, "30 minutos", 0, "09:30", "18:00", "546", "MT20"], [8, "30 minutos", 0, "10:00", "18:30", "547", "MT21"], [8, "30 minutos", 0, "10:30", "19:00", "548", "MT22"], [8, "30 minutos", 0, "11:00", "19:30", "549", "MT23"], [8, "30 minutos", 0, "11:30", "20:00", "640", "MT44"], [8, "30 minutos", 1, "12:00", "20:30", "666", "TN2"], [8, "30 minutos", 1, "12:30", "21:00", "667", "TN3"], [8, "30 minutos", 1, "13:00", "21:30", "668", "TN4"], [8, "30 minutos", 1, "13:30", "22:00", "676", "TN7"], [8, "1 hora", 0, "06:00", "15:00", "550", "MT24"], [8, "1 hora", 0, "06:30", "15:30", "626", "MT25"], [8, "1 hora", 0, "07:00", "16:00", "552", "MT26"], [8, "1 hora", 0, "07:30", "16:30", "554", "MT27"], [8, "1 hora", 0, "08:00", "17:00", "556", "MT28"], [8, "1 hora", 0, "08:30", "17:30", "558", "MT29"], [8, "1 hora", 0, "09:00", "18:00", "560", "MT30"], [8, "1 hora", 0, "09:30", "18:30", "562", "MT31"], [8, "1 hora", 0, "10:00", "19:00", "564", "MT32"], [8, "1 hora", 0, "10:30", "19:30", "566", "MT33"], [8, "1 hora", 0, "11:00", "20:00", "568", "MT34"], [8, "1 hora", 1, "11:30", "20:30", "669", "MT47"], [8, "1 hora", 1, "12:00", "21:00", "670", "TN5"], [8, "1 hora", 1, "12:30", "21:30", "671", "TN6"], [8, "1 hora", 1, "13:00", "22:00", "617", "TN1"], [8, "2 horas", 0, "06:00", "16:00", "664", "MT45"], [8, "2 horas", 0, "06:30", "16:30", "665", "MT46"], [8, "2 horas", 0, "07:00", "17:00", "570", "MT36"], [8, "2 horas", 0, "07:30", "17:30", "572", "MT37"], [8, "2 horas", 0, "08:00", "18:00", "574", "MT38"], [8, "2 horas", 0, "08:30", "18:30", "576", "MT39"], [8, "2 horas", 0, "09:00", "19:00", "578", "MT40"], [8, "2 horas", 0, "09:30", "19:30", "580", "MT41"], [8, "2 horas", 0, "10:00", "20:00", "582", "MT42"], [8, "2 horas", 1, "10:30", "20:30", "583", "MT43"], [8, "2 horas", 1, "11:00", "21:00", "673", "MT48"], [8, "2 horas", 1, "11:30", "21:30", "674", "MT49"], [8, "2 horas", 1, "12:00", "22:00", "675", "TN8"], [12, "diurno", 0, "06:00", "18:00", "584", "D5"], [12, "diurno", 0, "06:30", "18:30", "623", "D11"], [12, "diurno", 0, "07:00", "19:00", "586", "D6"], [12, "diurno", 0, "07:30", "19:30", "588", "D7"], [12, "diurno", 0, "08:00", "20:00", "590", "D8"], [12, "diurno", 0, "08:30", "20:30", "680", "D12"], [12, "diurno", 0, "09:00", "21:00", "619", "D9"], [12, "diurno", 0, "09:30", "21:30", "681", "D13"], [12, "diurno", 0, "10:00", "22:00", "621", "D10"], [12, "noturno", 0, "18:00", "06:00", "592", "N6"], [12, "noturno", 0, "18:30", "06:30", "594", "N7"], [12, "noturno", 0, "19:00", "07:00", "596", "N8"], [12, "noturno", 0, "19:30", "07:30", "598", "N9"], [12, "noturno", 0, "20:00", "08:00", "600", "N10"], [24, "", 0, "06:00", "06:00", "602", "DN4"], [24, "", 0, "07:00", "07:00", "603", "DN5"], [24, "", 0, "08:00", "08:00", "604", "DN6"]].map(r=>({j:r[0],iv:r[1],assist:!!r[2],i:r[3],f:r[4],c:r[5],s:r[6]}));
+const $=id=>document.getElementById(id);
+const J=[...new Set(R.map(r=>r.j))];
+const ivLabel=r=>r.iv==='diurno'?'Plantão diurno':r.iv==='noturno'?'Plantão noturno':r.iv?'Intervalo de '+r.iv:(r.j===24?'Plantão':'');
+const obs=r=>[ivLabel(r),r.assist?'Só assistencial, médica e adm. essencial':''].filter(Boolean).join(' · ');
+const opt=(v,t)=>`<option value="${v}">${t}</option>`;
+$('jor').innerHTML=J.map(j=>opt(j,j+' horas')).join('');
+const sortT=a=>a.sort((x,y)=>x.localeCompare(y));
+function fillIni(keep){const j=+$('jor').value;const l=sortT([...new Set(R.filter(r=>r.j===j).map(r=>r.i))]);
+  $('ini').innerHTML=l.map(v=>opt(v,v)).join('');if(keep&&l.includes(keep))$('ini').value=keep;}
+function fillFim(keep){const j=+$('jor').value,i=$('ini').value;const l=R.filter(r=>r.j===j&&r.i===i);
+  $('fim').innerHTML=l.map(r=>opt(r.f,r.f+(r.iv&&r.j<12?'  ('+r.iv+')':''))).join('');if(keep&&l.some(r=>r.f===keep))$('fim').value=keep;}
+function current(){const j=+$('jor').value;return R.find(r=>r.j===j&&r.i===$('ini').value&&r.f===$('fim').value);}
+function show(){const r=current();$('rCod').textContent=r?r.c:'—';$('rSig').textContent=r?r.s:'—';
+  const m=[];if(r){m.push(`<span class="chip">${r.j} horas · ${r.i} às ${r.f}${r.j>=12&&r.f<=r.i?' (dia seguinte)':''}</span>`);
+    if(ivLabel(r))m.push(`<span class="chip">${ivLabel(r)}</span>`);
+    m.push(r.assist?'<span class="chip warn">Só para categorias assistencial, médica e administrativa essencial à assistência</span>':'<span class="chip">Todas as categorias</span>');
+    const dup=R.filter(x=>x!==r&&(x.c===r.c||x.s===r.s));
+    if(dup.length)m.push(`<span class="chip warn">No Anexo II, ${dup.map(x=>(x.c===r.c?'o código '+x.c:'a sigla '+x.s)+' também aparece em '+x.j+'h '+x.i+'–'+x.f).join('; ')}</span>`);}
+  $('meta').innerHTML=m.join('');table();}
+function table(){const q=$('q').value.trim().toUpperCase();const j=+$('jor').value;const cur=current();
+  const l=q?R.filter(r=>r.c.includes(q)||r.s.toUpperCase().includes(q)):R.filter(r=>r.j===j);
+  $('tTitle').textContent=q?`Resultados para “${$('q').value.trim()}”`:`Jornadas de ${j} horas`;
+  $('tb').innerHTML=l.length?l.map(r=>`<tr tabindex="0" data-k="${R.indexOf(r)}" class="${r===cur?'sel':''}"><td>${r.j}h</td><td>${r.i}</td><td>${r.f}</td><td>${r.c}</td><td>${r.s}</td><td class="t">${obs(r)}</td></tr>`).join('')
+    :'<tr><td colspan="6" class="empty">Nenhum código ou sigla encontrado.</td></tr>';}
+function pick(r){$('jor').value=r.j;fillIni(r.i);fillFim(r.f);show();}
+$('jor').onchange=()=>{const i=$('ini').value,f=$('fim').value;fillIni(i);fillFim(f);show();};
+$('ini').onchange=()=>{fillFim($('fim').value);show();};
+$('fim').onchange=show;$('q').oninput=table;
+$('tb').addEventListener('click',e=>{const tr=e.target.closest('tr[data-k]');if(tr)pick(R[+tr.dataset.k]);});
+$('tb').addEventListener('keydown',e=>{if(e.key==='Enter'){const tr=e.target.closest('tr[data-k]');if(tr)pick(R[+tr.dataset.k]);}});
+document.querySelectorAll('.copy').forEach(b=>b.onclick=()=>{const t=$(b.dataset.t);const v=t.textContent;
+  const done=()=>{b.textContent='Copiado';setTimeout(()=>b.textContent='Copiar',1400);};
+  const sel=()=>{const s=getSelection(),rg=document.createRange();rg.selectNodeContents(t);s.removeAllRanges();s.addRange(rg);};
+  try{navigator.clipboard.writeText(v).then(done,sel);}catch(e){sel();}});
+pick(R.find(r=>r.c==='586'));
+</script>
