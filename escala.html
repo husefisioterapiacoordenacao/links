@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#075985">
+<title>Escala Mensal | Fisioterapia</title>
+<style>
+:root{--primary:#075985;--primary2:#0f766e;--ink:#17324d;--muted:#667b8e;--line:#dce6ed;--bg:#f3f7fa}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#edf7fa,#f7fafc);font-family:Inter,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;color:var(--ink)}
+header{padding:30px 18px 62px;background:linear-gradient(125deg,#064663,#075985 58%,#0f766e);color:white}
+header .inner{max-width:1050px;margin:auto}header a{display:inline-block;color:white;text-decoration:none;font-size:13px;margin-bottom:25px;opacity:.9}
+h1{font-size:clamp(24px,4vw,34px);letter-spacing:-.6px;margin:0 0 8px}header p{font-size:14px;line-height:1.5;margin:0;opacity:.86}
+main{max-width:1080px;margin:-30px auto 40px;padding:0 15px;position:relative}.panel{background:white;border:1px solid var(--line);box-shadow:0 10px 28px #17324d12;border-radius:18px;padding:20px;margin-bottom:16px}
+.top{display:flex;gap:15px;align-items:center;justify-content:space-between;flex-wrap:wrap}.label{font-size:11px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}.heading{font-weight:750;font-size:17px}.sub{font-size:12px;color:var(--muted);margin-top:4px}
+.controls{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}.control{display:flex;flex-direction:column;gap:6px;min-width:170px;flex:1}label{font-size:12px;font-weight:700}select,input{font:inherit;background:white;color:var(--ink);border:1px solid #c9d9e4;border-radius:10px;padding:11px 12px;min-height:44px;width:100%}select:focus,input:focus{outline:2px solid #9ed4e5;outline-offset:1px}.status{font-size:13px;color:var(--muted);line-height:1.5}.status.error{color:#9f2525}.badge{display:inline-block;background:#e0f2fe;color:#075985;padding:7px 10px;border-radius:10px;font-size:12px;font-weight:700}
+.table-wrap{overflow:auto;max-height:70vh;border:1px solid var(--line);border-radius:12px;margin-top:16px}.scale-table{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%;font-size:12px}.scale-table th,.scale-table td{border-right:1px solid #e5ecf1;border-bottom:1px solid #e5ecf1;padding:9px 11px;text-align:left;white-space:nowrap;min-width:56px;max-width:280px;overflow:hidden;text-overflow:ellipsis}.scale-table th{position:sticky;top:0;background:#eaf4f9;font-weight:750;z-index:2}.scale-table th:first-child,.scale-table td:first-child{position:sticky;left:0;z-index:1;background:#fff}.scale-table th:first-child{z-index:3;background:#eaf4f9}.scale-table tr.match td{background:#effaf5}.scale-table tr.match td:first-child{background:#e0f5eb}.scale-table tr:hover td{box-shadow:inset 0 0 0 999px #07598508}.empty{padding:24px;text-align:center;color:var(--muted)}.hint{font-size:12px;color:var(--muted);line-height:1.6;margin-top:14px}footer{text-align:center;color:var(--muted);font-size:12px;padding:8px 15px 30px}
+@media(max-width:600px){.panel{padding:15px}header{padding-top:22px}.controls{gap:10px}.control{min-width:100%}.scale-table{font-size:11px}.scale-table th,.scale-table td{padding:8px 9px}}
+</style>
+</head>
+<body>
+<header><div class="inner"><a href="index.html">← Voltar à Central de Acesso</a><h1>📋 Escala Mensal de Trabalho</h1><p>Serviço de Fisioterapia · Consulta de plantões e setores</p></div></header>
+<main>
+<section class="panel"><div class="top"><div><div class="label">Consulta da equipe</div><div class="heading">Escala disponível</div><div class="sub">Dados carregados do arquivo escala.xlsx publicado no repositório.</div></div><span class="badge">Somente consulta</span></div>
+<div class="controls"><div class="control"><label for="aba">Setor / aba do Excel</label><select id="aba" disabled><option>Carregando...</option></select></div><div class="control"><label for="busca">Localizar profissional ou informação</label><input id="busca" type="search" placeholder="Digite um nome para filtrar" autocomplete="off" disabled></div></div><p class="status" id="status" role="status" aria-live="polite">Carregando a escala...</p></section>
+<section class="panel"><div class="top"><div><div class="heading" id="titulo">Visualização da escala</div><div class="sub" id="contagem">Selecione um setor para consultar.</div></div></div><div id="tabela" class="table-wrap"><div class="empty">Aguardando o arquivo da escala.</div></div><p class="hint">No celular, deslize a tabela para os lados para consultar todos os dias. Para atualizar a escala, substitua <strong>escala.xlsx</strong> no GitHub mantendo esse nome. Não publique informações pessoais ou sigilosas em um site público.</p></section>
+</main><footer>Serviço de Fisioterapia · Central de Acesso</footer>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+'use strict';
+const ARQUIVO='escala.xlsx';
+const abaEl=document.getElementById('aba'),buscaEl=document.getElementById('busca'),statusEl=document.getElementById('status'),tabelaEl=document.getElementById('tabela'),tituloEl=document.getElementById('titulo'),contagemEl=document.getElementById('contagem');
+let planilha=null;
+function status(texto,erro=false){statusEl.textContent=texto;statusEl.classList.toggle('error',erro)}
+function celula(texto,tag){const e=document.createElement(tag);e.textContent=texto==null?'':String(texto);return e}
+function renderizar(){if(!planilha)return;const nome=abaEl.value;const folha=planilha.Sheets[nome];if(!folha)return;
+// header:1 conserva a estrutura original, inclusive linhas de título e espaços do Excel.
+const linhas=XLSX.utils.sheet_to_json(folha,{header:1,defval:'',blankrows:false,raw:false});
+const termo=buscaEl.value.trim().toLocaleLowerCase('pt-BR');
+const filtradas=termo?linhas.filter(l=>l.some(v=>String(v).toLocaleLowerCase('pt-BR').includes(termo))):linhas;
+const ncol=Math.min(120,Math.max(1,...linhas.map(l=>l.length)));
+tituloEl.textContent=nome;contagemEl.textContent=filtradas.length+' linha(s) exibida(s)';
+tabelaEl.replaceChildren();if(!filtradas.length){const v=document.createElement('div');v.className='empty';v.textContent='Nenhuma linha encontrada para essa pesquisa.';tabelaEl.append(v);return}
+const table=document.createElement('table');table.className='scale-table';table.setAttribute('aria-label','Escala: '+nome);
+const body=document.createElement('tbody');const maxLinhas=1500;
+filtradas.slice(0,maxLinhas).forEach((linha,i)=>{const tr=document.createElement('tr');if(termo)tr.className='match';for(let j=0;j<ncol;j++)tr.append(celula(linha[j],i===0&&!termo?'th':'td'));body.append(tr)});
+table.append(body);tabelaEl.append(table);if(filtradas.length>maxLinhas)status('Exibindo as primeiras '+maxLinhas+' linhas para manter o desempenho.');else status('Escala carregada. Use a busca para localizar um profissional.');}
+abaEl.addEventListener('change',renderizar);buscaEl.addEventListener('input',renderizar);
+(async()=>{try{if(typeof XLSX==='undefined')throw Error('Não foi possível carregar o leitor de Excel. Confira sua conexão com a internet.');
+const resp=await fetch(ARQUIVO+'?v='+Date.now(),{cache:'no-store'});if(!resp.ok)throw Error('Arquivo escala.xlsx não encontrado (HTTP '+resp.status+'). Publique-o na mesma pasta de escala.html.');
+const dados=await resp.arrayBuffer();planilha=XLSX.read(dados,{type:'array',cellDates:false});if(!planilha.SheetNames.length)throw Error('O Excel não possui abas para visualizar.');
+abaEl.replaceChildren();planilha.SheetNames.forEach(nome=>{const o=document.createElement('option');o.value=nome;o.textContent=nome;abaEl.append(o)});abaEl.disabled=false;buscaEl.disabled=false;renderizar();
+}catch(e){status(e.message||'Não foi possível abrir a escala.',true);tabelaEl.replaceChildren();const d=document.createElement('div');d.className='empty';d.textContent='A escala ainda não está disponível para consulta.';tabelaEl.append(d)}})();
+</script>
+</body></html>
