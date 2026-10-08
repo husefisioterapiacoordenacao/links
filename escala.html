@@ -15,13 +15,39 @@ let book,all={},active=[],month=9,year=2026,selected='',weekStart=0,dates=[];
 const iso=(d)=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const dateFrom=(v,yr)=>{const m=String(v??'').match(/(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?/);if(!m)return null;const y=m[3]?Number(m[3].length===2?'20'+m[3]:m[3]):yr;const d=new Date(y,+m[2]-1,+m[1]);return d.getMonth()===+m[2]-1&&d.getDate()===+m[1]?d:null};
 const clean=v=>String(v??'').replace(/\s+/g,' ').trim();
-function parseSheet(sheet,yr){const rows=XLSX.utils.sheet_to_json(sheet,{header:1,defval:'',raw:false}),result=[];let map=[],sector='',namecol=0,shiftcol=1;const isCoord=rows.some(r=>clean(r[0]).toUpperCase()==='DIURNO'&&r.slice(1).some(x=>clean(x)));if(isCoord){namecol=-1;shiftcol=0}
-for(let i=0;i<rows.length;i++){let row=rows[i]||[];const candidates=row.map((v,j)=>({j,d:dateFrom(v,yr)})).filter(x=>x.d);if(candidates.length>=4){map=candidates;sector=isCoord?'Coordenação':'';continue}if(!map.length)continue;
- const sr=clean(row[namecol]);const sh=clean(row[shiftcol]);if(namecol>=0&&sr)sector=sr;
- const shift=isCoord?clean(row[0]):sh;
- if(!shift||!/(DIURNO|NOTURNO|TARDISTA|ROTINA|APOIO)/i.test(shift))continue;
- for(const item of map){const v=row[item.j];if(!clean(v))continue;const people=String(v).split(/\r?\n/).map(clean).filter(Boolean);if(!people.length)continue;result.push({date:iso(item.d),sector:sector||'Equipe / setor não identificado',shift,people})}
-}return result}
+function parseSheet(sheet,yr){
+ const rows=XLSX.utils.sheet_to_json(sheet,{header:1,defval:'',raw:false}),result=[];
+ let map=[],sector='',namecol=0,shiftcol=1,lastShift='';
+ // A aba de coordenação identifica o turno na primeira coluna.
+ const isCoord=rows.some(r=>clean(r[0]).toUpperCase()==='DIURNO'&&r.slice(1).some(x=>clean(x)));
+ if(isCoord)namecol=-1;
+ for(let i=0;i<rows.length;i++){
+  const row=rows[i]||[];
+  const candidates=row.map((v,j)=>({j,d:dateFrom(v,yr)})).filter(x=>x.d);
+  if(candidates.length>=4){
+   map=candidates;
+   shiftcol=isCoord?0:Math.min(...candidates.map(x=>x.j))-1;
+   sector=isCoord?'Coordenação':'';
+   lastShift='';
+   continue;
+  }
+  if(!map.length)continue;
+  const sr=namecol>=0?clean(row[namecol]):'';
+  if(sr)sector=sr;
+  const currentShift=clean(row[shiftcol]);
+  const hasShift=/(DIURNO|NOTURNO|TARDISTA|ROTINA|APOIO)/i.test(currentShift);
+  // Linhas vazias no campo Turno não devem apagar a equipe do setor.
+  const shift=hasShift?currentShift:(lastShift||'Turno não informado');
+  if(hasShift)lastShift=currentShift;
+  // Não registrar observações ou rodapés como profissionais.
+  for(const item of map){
+   const v=row[item.j];if(!clean(v))continue;
+   const people=String(v).split(/\r?\n/).map(clean).filter(Boolean);
+   if(people.length)result.push({date:iso(item.d),sector:sector||'Equipe / setor não identificado',shift,people});
+  }
+ }
+ return result;
+}
 function monthInfo(b){for(const n of b.SheetNames){const r=XLSX.utils.sheet_to_json(b.Sheets[n],{header:1,range:0,defval:''});const m=clean(r?.[0]?.[0]??'').match(/([a-záéíóúçãõ]+)\s+de\s+(20\d\d)/i);if(m){const idx=months.findIndex(x=>x.normalize('NFD').replace(/[\u0300-\u036f]/g,'')===m[1].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''));if(idx>=0)return {month:idx,year:+m[2],note:clean(r[0][0])}}}return {month:9,year:2026,note:'Mês não identificado'}}
 function filtered(){const q=clean($('pesquisa').value).toLocaleLowerCase('pt-BR');return !q?active:active.map(x=>({...x,people:x.people.filter(p=>p.toLocaleLowerCase('pt-BR').includes(q))})).filter(x=>x.people.length)}
 function groupsFor(date,items=filtered()){const m=new Map();for(const x of items.filter(y=>y.date===date)){if(!m.has(x.sector))m.set(x.sector,new Map());const shifts=m.get(x.sector);if(!shifts.has(x.shift))shifts.set(x.shift,new Set());x.people.forEach(p=>shifts.get(x.shift).add(p))}return m}
